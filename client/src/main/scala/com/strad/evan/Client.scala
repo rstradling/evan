@@ -17,52 +17,80 @@
 package com.strad.evan
 
 import cats.MonadError
-import freestyle._
-import freestyle.implicits._
-import freestyle.fs2._
-import freestyle.fs2.implicits._
+import fs2.Task
+import fs2.interop.cats._
 import io.circe.Json
 
-@free
-trait EventStore {
-  def write(item: Json): FS[Unit]
-}
+object Algebra {
 
-object ErrorOrObj {
-  sealed trait Error extends Product with Serializable
-  case class ParserError(s: String) extends Error
-  case class ConnectionError(s: String) extends Error
-  type ErrorOr[A] = Either[Error, A]
-}
+  trait Serialize[S] {
+    def serialize(data: S): String
+  }
 
-@module
-trait Cqrs {
-  val eventStore: EventStore
-  val streams: StreamM
+  object Serialize {
+    def serialize[S](a: S)(implicit s: Serialize[S]) = s.serialize(a)
+
+    val jsonSerialize: Serialize[Json] =
+      new Serialize[Json] {
+        override def serialize(data: Json): String = data.toString()
+      }
+  }
+
+
+  sealed trait EventStoreA[A]
+
+  case class Write[T](item: T) extends EventStoreA[Unit]
+
+  import cats.free.Free
+  import cats.free.Free.liftF
+
+  type EventStore[A] = Free[EventStoreA, A]
+  def write[T](item: T): EventStore[Unit] =
+    liftF[EventStoreA, Unit](Write[T](item))
+
+
+  object ErrorOrObj {
+
+    sealed trait Error extends Product with Serializable
+
+    case class ParserError(s: String) extends Error
+
+    case class ConnectionError(s: String) extends Error
+
+    type ErrorOr[A] = Either[Error, A]
+  }
+
 }
 
 object Main extends App {
+  import Algebra._
   implicit val scheduler = _root_.fs2.Scheduler.fromFixedDaemonPool(2, "generator-scheduler")
   implicit val S         = _root_.fs2.Strategy.fromFixedDaemonPool(2, "generator-timer")
 
-  implicit def eventStoreHandler[F[_]](
-                                      implicit ME: MonadError[F, Throwable]): EventStore.Handler[F] = new EventStore.Handler[F] {
-    override def write(item: Json): F[Unit] = {
-      ME.pure(())
-    }
-  }
-  def program[F[_]](implicit app: Cqrs[F]): FreeS[F, Unit] = {
-    val item = Json.fromBoolean(true)
+  def program: EventStore[Unit] = {
     for {
-      c <- app.eventStore.write(item)
+      c <- write(item)
     } yield ()
   }
+
+  import cats.arrow.FunctionK
+  import cats.~>
+  def compiler: EventStoreA ~> _root_.fs2.Task =
+    new (EventStoreA ~> _root_.fs2.Task) {
+      def apply[A](fa: EventStoreA[A]): Task[A] =
+        fa match {
+          case Write(item) =>
+            Task(())
+        }
+    }
+
   import cats.instances.future._
   import scala.concurrent._
   import scala.concurrent.duration._
   import scala.concurrent.ExecutionContext.Implicits.global
 
-  val futureValue = program[Cqrs.Op].interpret[Future]
+  val item: Json = Json.fromBoolean(true)
+  val futureValue = program.foldMap(compiler).unsafeRunAsyncFuture()
   val res = Await.result(futureValue, Duration.Inf)
   println(res)
 }

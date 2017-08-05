@@ -4,6 +4,7 @@ import Keys._
 
 val freeStyleVersion = "0.3.1"
 val circeVersion = "0.8.0"
+val fs2Version = "0.9.7"
 
 addCompilerPlugin("org.scalameta" %% "paradise" % "3.0.0-M9" cross CrossVersion.full)
 
@@ -13,9 +14,8 @@ val sharedSettings = Seq(
     "ch.qos.logback" % "logback-classic" % "1.1.7",
     "org.typelevel"  %% "cats" % "0.9.0",
     "org.scalatest" %% "scalatest" % "3.0.0" % "test",
-    "io.frees" %% "freestyle" % freeStyleVersion,
-    "io.frees" %% "freestyle-async" % freeStyleVersion,
-    "io.frees" %% "freestyle-fs2" % freeStyleVersion,
+    "co.fs2"   %% "fs2-core" % fs2Version,
+    "co.fs2"   %% "fs2-cats" % "0.3.0",
     "io.circe" %% "circe-core" % circeVersion,
     "io.circe" %% "circe-generic" % circeVersion,
     "io.circe" %% "circe-parser" % circeVersion
