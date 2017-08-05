@@ -1,0 +1,46 @@
+import sbt._
+import Keys._
+
+
+val freeStyleVersion = "0.3.1"
+val circeVersion = "0.8.0"
+
+addCompilerPlugin("org.scalameta" %% "paradise" % "3.0.0-M9" cross CrossVersion.full)
+
+val sharedSettings = Seq(
+  libraryDependencies ++= Seq(
+    "com.typesafe.scala-logging" %% "scala-logging" % "3.5.0",
+    "ch.qos.logback" % "logback-classic" % "1.1.7",
+    "org.typelevel"  %% "cats" % "0.9.0",
+    "org.scalatest" %% "scalatest" % "3.0.0" % "test",
+    "io.frees" %% "freestyle" % freeStyleVersion,
+    "io.frees" %% "freestyle-async" % freeStyleVersion,
+    "io.frees" %% "freestyle-fs2" % freeStyleVersion,
+    "io.circe" %% "circe-core" % circeVersion,
+    "io.circe" %% "circe-generic" % circeVersion,
+    "io.circe" %% "circe-parser" % circeVersion
+  ),
+  resolvers += Resolver.typesafeRepo("releases")
+)
+
+logBuffered in Test := false
+
+crossScalaVersions in ThisBuild := Seq("2.11.11", "2.12.3", "2.13.0-M2")
+
+scalaVersion in ThisBuild := "2.12.3"
+
+lazy val root = project
+  .in(file("."))
+  .settings(
+  name := "free-redis",
+    moduleName := "free-redis",
+    mainClass in (Compile, run) := Some("com.strad.evan.Main")
+)
+  .aggregate(client)
+  .dependsOn(client)
+
+lazy val client = project
+  .settings(
+  name := "client",
+    moduleName := "client")
+  .settings(sharedSettings)

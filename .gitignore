@@ -1,0 +1,7 @@
+target
+project/project
+project/target
+/.ensime
+.ensime_cache/
+.idea
+tags
