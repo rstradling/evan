@@ -30,7 +30,7 @@ object Algebra {
   object Serialize {
     def serialize[S](a: S)(implicit s: Serialize[S]) = s.serialize(a)
 
-    val jsonSerialize: Serialize[Json] =
+    implicit val jsonSerialize: Serialize[Json] =
       new Serialize[Json] {
         override def serialize(data: Json): String = data.toString()
       }
@@ -39,14 +39,14 @@ object Algebra {
 
   sealed trait EventStoreA[A]
 
-  case class Write[T](item: T) extends EventStoreA[Unit]
+  case class Write[T](item: T, ev: Serialize[T]) extends EventStoreA[Unit]
 
   import cats.free.Free
   import cats.free.Free.liftF
 
   type EventStore[A] = Free[EventStoreA, A]
-  def write[T](item: T): EventStore[Unit] =
-    liftF[EventStoreA, Unit](Write[T](item))
+  def write[T](item: T)(implicit s: Serialize[T]): EventStore[Unit] =
+    liftF[EventStoreA, Unit](Write[T](item, s))
 
 
   object ErrorOrObj {
@@ -66,6 +66,7 @@ object Main extends App {
   import Algebra._
   implicit val scheduler = _root_.fs2.Scheduler.fromFixedDaemonPool(2, "generator-scheduler")
   implicit val S         = _root_.fs2.Strategy.fromFixedDaemonPool(2, "generator-timer")
+  import Algebra.Serialize._
 
   def program: EventStore[Unit] = {
     for {
@@ -79,7 +80,8 @@ object Main extends App {
     new (EventStoreA ~> _root_.fs2.Task) {
       def apply[A](fa: EventStoreA[A]): Task[A] =
         fa match {
-          case Write(item) =>
+          case Write(item, ev) =>
+            val data = ev.serialize(item)
             Task(())
         }
     }
