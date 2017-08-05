@@ -18,7 +18,9 @@ val sharedSettings = Seq(
     "co.fs2"   %% "fs2-cats" % "0.3.0",
     "io.circe" %% "circe-core" % circeVersion,
     "io.circe" %% "circe-generic" % circeVersion,
-    "io.circe" %% "circe-parser" % circeVersion
+    "io.circe" %% "circe-parser" % circeVersion,
+    "org.mongodb.scala" %% "mongo-scala-driver" % "2.1.0",
+    "com.rabbitmq" % "amqp-client" % "4.2.0"
   ),
   resolvers += Resolver.typesafeRepo("releases")
 )
