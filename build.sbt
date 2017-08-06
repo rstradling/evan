@@ -12,7 +12,8 @@ val sharedSettings = Seq(
   libraryDependencies ++= Seq(
     "com.typesafe.scala-logging" %% "scala-logging" % "3.5.0",
     "ch.qos.logback" % "logback-classic" % "1.1.7",
-    "org.typelevel"  %% "cats" % "0.9.0",
+    "org.typelevel"  %% "cats-core" % "1.0.0-MF",
+    "org.typelevel"  %% "cats-free" % "1.0.0-MF",
     "org.scalatest" %% "scalatest" % "3.0.0" % "test",
     "co.fs2"   %% "fs2-core" % fs2Version,
     "co.fs2"   %% "fs2-cats" % "0.3.0",
