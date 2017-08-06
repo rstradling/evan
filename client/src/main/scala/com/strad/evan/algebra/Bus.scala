@@ -7,13 +7,13 @@ import io.circe.Json
 object Bus {
   sealed trait MessageBusA[A]
   case class Send(item: Json) extends MessageBusA[Unit]
-  case class Receive(s: String) extends MessageBusA[Json]
+  case class Receive() extends MessageBusA[Json]
    class MessageBus[F[_]](implicit I: InjectK[MessageBusA, F]) {
     def send(item: Json): Free[F, Unit] =
       Free.inject[MessageBusA, F](Send(item))
 
-    def receive(str: String): Free[F, Json] =
-      Free.inject[MessageBusA, F](Receive(str))
+    def receive(): Free[F, Json] =
+      Free.inject[MessageBusA, F](Receive())
   }
 
   object MessageBus {

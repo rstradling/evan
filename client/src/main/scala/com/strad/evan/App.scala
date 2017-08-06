@@ -19,7 +19,9 @@ package com.strad.evan
 import cats.data.{EitherK}
 import com.strad.evan.algebra.Bus.MessageBusA
 import com.strad.evan.algebra.EventStore.EventStoreA
+import com.strad.evan.algebra.ReadStore.ReadStoreA
 
 object App {
   type CommandApp[A] = EitherK[EventStoreA, MessageBusA, A]
+  type ReadStoreApp[A] = EitherK[MessageBusA, ReadStoreA, A]
 }
