@@ -31,7 +31,7 @@ object Main extends App {
 
     for {
       c <- write(answer)
-      d <- send(answer)
+      //d <- send(answer)
       x <- receive()
       _ = println(x)
     } yield ()

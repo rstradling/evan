@@ -29,7 +29,11 @@ object RabbitMqInterpreter extends (MessageBusA ~> Task) {
         // FIXME: Returns a string
         Task.delay {
           val b = ch.basicGet(queueName, true)
-          parse(new String(b.getBody)).getOrElse(throw new RuntimeException("Could not parse string from rabbit mq to Json"))
+          if (b != null) {
+            Some(parse(new String(b.getBody)).getOrElse(throw new RuntimeException("Could not parse string from rabbit mq to Json")))
+          } else {
+            None
+          }
         }
     }
   }
