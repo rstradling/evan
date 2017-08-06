@@ -1,10 +1,10 @@
-package com.strad.evan.dsl
+package com.strad.evan.algebra
 
 import cats.free.Free
 import cats.InjectK
 import io.circe.Json
 
-object EventStoreDsl {
+object EventStore {
   sealed trait EventStoreA[A]
   case class Write(item: Json) extends EventStoreA[Unit]
 

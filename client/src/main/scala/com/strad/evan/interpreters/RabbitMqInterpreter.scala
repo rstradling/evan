@@ -1,8 +1,8 @@
-package com.strad.evan.interpreters.event.bus
+package com.strad.evan.interpreters
 
 import cats.~>
 import com.rabbitmq.client.ConnectionFactory
-import com.strad.evan.dsl.BusDsl.{Send, MessageBusA}
+import com.strad.evan.algebra.Bus.{MessageBusA, Send}
 import fs2.Task
 
 object RabbitMqInterpreter extends (MessageBusA ~> Task) {

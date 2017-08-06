@@ -1,7 +1,7 @@
-package com.strad.evan.interpreters.event.store
+package com.strad.evan.interpreters
 
 import cats.~>
-import com.strad.evan.dsl.EventStoreDsl.{Write, EventStoreA}
+import com.strad.evan.algebra.EventStore.{EventStoreA, Write}
 import fs2.Task
 import org.mongodb.scala._
 

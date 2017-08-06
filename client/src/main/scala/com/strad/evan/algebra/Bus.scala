@@ -1,10 +1,10 @@
-package com.strad.evan.dsl
+package com.strad.evan.algebra
 
 import cats.InjectK
 import cats.free.Free
 import io.circe.Json
 
-object BusDsl {
+object Bus {
   sealed trait MessageBusA[A]
   case class Send(item: Json) extends MessageBusA[Unit]
   case class Receive(s: String) extends MessageBusA[Json]
